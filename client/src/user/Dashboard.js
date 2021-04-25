@@ -1,14 +1,14 @@
 import React from 'react'
-import DashboardNav from '../component/DashboardNav';
-import ConnectNav from '../component/ConnectNav';
+import DashboardNav from '../components/DashboardNav';
+import ConnectNav from '../components/ConnectNav';
 import {Link} from 'react-router-dom';
 const Dashboard = () => {
     return (
         <>
             <div className="container-fluid bg-secondary p-5 text-center">
                 <ConnectNav />
-
             </div>
+
             <div className="container-fluid p-4">
                 <DashboardNav />
             </div>
@@ -20,7 +20,7 @@ const Dashboard = () => {
                    <div className="col-md-2">
                        <Link to="/" className="btn btn-primary">Browse Hotels</Link>
                    </div>
-               </div>
+               </div>   
             </div>
         </>
     );

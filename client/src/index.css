@@ -1,7 +1,3 @@
-.pointer{
+.pointer {
   cursor: pointer;
 }
-.active{
-  color: green !important;
-   text-decoration: underline !important;
- }

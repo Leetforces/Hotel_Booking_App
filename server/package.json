@@ -1,12 +1,13 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "\"Server side code with nodeJs,MonogDB\"",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -r esm src/server.js"
+    "start": "nodemon -r esm server.js"
   },
-  "author": "Manish Kumar",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -14,13 +15,15 @@
     "dotenv": "^8.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
     "express-jwt": "^6.0.0",
-    "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.0",
+    "mongoose": "^5.12.2",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.5.0",
+    "nodemailer-sendgrid-transport": "^0.2.0",
     "nodemon": "^2.0.7",
     "query-string": "^7.0.0",
-    "stripe": "^8.140.0"
+    "stripe": "^8.144.0"
   }
 }
