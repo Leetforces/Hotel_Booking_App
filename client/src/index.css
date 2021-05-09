@@ -1,3 +1,8 @@
 .pointer {
   cursor: pointer;
 }
+.active span{
+    margin:1px;
+    padding:1px;
+    background-color: yellow;
+}

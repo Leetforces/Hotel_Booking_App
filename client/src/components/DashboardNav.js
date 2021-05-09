@@ -8,10 +8,10 @@ const DashboardNav = () => {
         <>
             <ul className="nav-tabs nav ">
                 <li className="nav-item">
-                    <Link className={`nav-link ${active==="/dashboard" && "active"}`} to="/dashboard">Your Bookings</Link>
+                    <Link className={`nav-link ${active==="/dashboard" && "active"}`} to="/dashboard"><span>Your Bookings</span></Link>
                 </li>
                 <li className="nav-item">
-                    <Link className={`nav-link ${active==="/dashboard/seller" && "active"}`} to="/dashboard/seller">Your Hotels</Link>
+                    <Link className={`nav-link ${active==="/dashboard/seller" && "active"}`} to="/dashboard/seller"><span>Your Hotels</span></Link>
                 </li>
             </ul>
         </>

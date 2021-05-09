@@ -72,6 +72,7 @@ const NewHotel = () => {
 
           <input type="text" name="title" onChange={handleChange} placeholder="Title" className="form-control m-2" value={title} />
           <textarea type="text" name="content" onChange={handleChange} placeholder="Content" className="form-control m-2" value={content} />
+          
           <AlgoliaPlaces className="form-control ml-2 mr-2" placeholder="Location" defaultValue={location} options={config} onChange={({ suggestion }) => setLocation(suggestion.value)} style={{ height: "50px" }} />
 
           <input type="number" name="price" onChange={handleChange} placeholder="Price" className="form-control m-2" value={price} />

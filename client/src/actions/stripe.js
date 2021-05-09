@@ -33,3 +33,18 @@ export const payoutSetting = async (token)=>{
     })
     return res;
 }
+export const currencyFormatter = (data) => {
+    // data :[{amount: 10,currentcy:"usd", source_types:[object]}]
+    return (data.amount ).toLocaleString(data.currency, {
+        style: "currency",
+        currency: data.currency,
+    })
+}
+
+export const diffDays =(from ,to)=>{
+    const day= 24*60*60*1000; // milliseconds in one day
+    const start = new Date(from);
+    const end= new Date(to);
+    const diff=Math.round(Math.abs((end-start)/day));
+    return diff;
+}

@@ -13,7 +13,10 @@ const transporter = nodemailer.createTransport(sendgridTransport({
 }))
 
 export const register = async (req, res) => {
-  console.log(req.body);
+  
+  
+  try {
+    console.log(req.body);
   const { name, email, password } = req.body;
 
   // validation
@@ -28,7 +31,8 @@ export const register = async (req, res) => {
 
   // register user
   const user = new User(req.body);
-  try {
+
+  
     await user.save();
     console.log("User Created", user);
     return res.json({ ok: true });
