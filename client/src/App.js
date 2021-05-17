@@ -16,6 +16,7 @@ import EditHotel from "./hotels/EditHotel";
 import ViewHotel from "./hotels/ViewHotel";
 import StripeSuccess from './stripe/StripeSuccess';
 import StripeCancel from './stripe/StripeCancel';
+import SearchResult from './hotels/SearchResult';
 function App() {
   return (
     <BrowserRouter>
@@ -55,6 +56,7 @@ function App() {
           path="/stripe/cancel"
           component={StripeCancel}
         />
+          <Route exact path="/search-result" component={SearchResult} />
       </Switch>
     </BrowserRouter>
   );

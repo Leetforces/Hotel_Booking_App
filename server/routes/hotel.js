@@ -9,7 +9,8 @@ import {
   read,
   update,
   userHotelsBookings,
-  isAlreadyBooked
+  isAlreadyBooked,
+  searchListings,
 } from "../controllers/hotel";
 import formidable from "express-formidable";
 const router = express.Router();
@@ -31,4 +32,5 @@ router.put(
 //orders
 router.get("/user-hotel-bookings",requireSignin,userHotelsBookings);
 router.get("/is-already-booked",requireSignin,isAlreadyBooked)
+router.post("/search-listings",searchListings)
 module.exports = router;

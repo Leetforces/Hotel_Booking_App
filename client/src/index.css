@@ -1,3 +1,4 @@
+
 .pointer {
   cursor: pointer;
 }
@@ -9,3 +10,17 @@
 .ant-modal-footer{
   display: none;
 } 
+
+.ant-select-selector{
+  height: 50px !important;
+}
+.ant-select-selection-placeholder, .ant-select-selection-item{
+  margin-top: 5px;
+}
+.btn-square{
+  border-radius: 0;
+}
+
+.marginTop {
+  margin-top: 20px;
+}
