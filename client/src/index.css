@@ -6,3 +6,6 @@
     padding:1px;
     background-color: yellow;
 }
+.ant-modal-footer{
+  display: none;
+} 

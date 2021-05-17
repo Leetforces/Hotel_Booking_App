@@ -10,3 +10,4 @@ router.post('/resetPassword',resetPassword);
 router.post('/updatePassword',updatePassword);
 
 module.exports = router;
+ 

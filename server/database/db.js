@@ -11,7 +11,7 @@ mongoose.connect(ONLINE_DB_URL,{
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: true,
+    useFindAndModify: false,
 }).then(()=>{
     console.log("Database Connection Successful.");
 }).catch((error)=>{

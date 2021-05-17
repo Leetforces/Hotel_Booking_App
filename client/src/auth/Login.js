@@ -30,7 +30,8 @@ const Login = ({ history }) => {
       }
     } catch (err) {
       console.log(err);
-      if (err.response.status === 400) toast.error(err.response.data);
+      if (err.response && err.response.status === 400)
+        toast.error(err.response.data);
     }
   };
 
