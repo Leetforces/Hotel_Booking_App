@@ -22,8 +22,8 @@ const ConnectNav = () => {
   };
   useEffect(() => {
     getAccountBalance(token).then((res) => {
-      console.log(res);
-      setBalance(res.data);
+      console.log("Balance REsponse=> ",res);
+       setBalance(res.data.balance);
     });
   }, []);
 
@@ -57,20 +57,17 @@ const ConnectNav = () => {
           <>
             <Ribbon text="Available " color="grey">
               <Card className="bg-light pt-1">
-                {balance &&
-                  balance.pending &&
-                  balance.pending.map((bal, i) => (
-                    <span key={i} className="lead">
-                      {currencyFormatter(bal)}
+                    <span className="lead">
+                      {balance} $
                     </span>
-                  ))}
+                 
               </Card>
             </Ribbon>
-            <Ribbon text="Payouts" color="silver">
+            {/* <Ribbon text="Payouts" color="silver">
               <Card onClick={handlePayoutSettings} className="bg-light pointer">
                 <SearchOutlined className="h5 pt-2" />
               </Card>
-            </Ribbon>
+            </Ribbon> */}
           </>
         )}
     </div>

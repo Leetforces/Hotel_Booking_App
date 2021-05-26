@@ -2,29 +2,37 @@ import React, { useState, useEffect } from "react";
 import { read, diffDays, isAlreadyBooked } from "../actions/hotel";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import { getSessionId } from "../actions/stripe";
+import { getSessionId, makePayment } from "../actions/stripe";
 import { loadStripe } from "@stripe/stripe-js";
+
+import StripeCheckout from 'react-stripe-checkout';
 
 const ViewHotel = ({ match, history }) => {
   const [hotel, setHotel] = useState({});
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [alreadyBooked,setAlreadyBooked] = useState(false);
+  const [alreadyBooked, setAlreadyBooked] = useState(false);
 
   const { auth } = useSelector((state) => ({ ...state }));
+
+  const [product, setProduct] = useState({
+    name: "react from fb",
+    price: 10,
+    productby: "Facebook",
+  });
 
   useEffect(() => {
     loadSellerHotel();
   }, []);
-  useEffect(()=>{
-    if(auth && auth.token){
-       const res= alreadyBookedFun();
-       if(res && res.data && res.data.ok) setAlreadyBooked(true);
-       console.log(res);
+  useEffect(() => {
+    if (auth && auth.token) {
+      alreadyBookedFun();
     }
-  },[])
-  const alreadyBookedFun =async()=>{
-    const res= await isAlreadyBooked(auth.token,match.params.hotelId);
+  }, [])
+  const alreadyBookedFun = async () => {
+    const res = await isAlreadyBooked(auth.token, match.params.hotelId);
+    if (res && res.data && res.data.ok) setAlreadyBooked(true);
+    console.log("res already book====>", res);
     return res;
   }
   const loadSellerHotel = async () => {
@@ -33,25 +41,53 @@ const ViewHotel = ({ match, history }) => {
     setHotel(res.data);
     setImage(`${process.env.REACT_APP_API}/hotel/image/${res.data._id}`);
   };
-
   const handleClick = async (e) => {
     e.preventDefault();
-
-    if(!auth || !auth.token){
+    setLoading(true);
+    if (!auth || !auth.token) {
       history.push("/login");
       return;
     }
+
+    setLoading(false);
+
+  }
+  const handleClickPayment = async (data) => {
     setLoading(true);
-    if (!auth) history.push("/login");
-    console.log(auth.token, match.params.hotelId);
-    let res = await getSessionId(auth.token, match.params.hotelId);
-    // console.log("Get sessionId response", res.data.sessionId);
-    const stripe = await loadStripe(process.env.REACT_APP_STRIPE_KEY);
-    stripe
-      .redirectToCheckout({
-        sessionId: res.data.sessionId,
-      })
-      .then((result) => console.log(result));
+
+
+    const token = auth.token;
+    const res = await makePayment(token, data, hotel.price, match.params.hotelId);
+
+
+    // const headers = {
+    //   "Content-Type": "application/json"
+    // }
+
+
+    // return fetch("http://localhost:8282/payment", {
+    //   method: "POST",
+    //   headers,
+    //   body: JSON.stringify(body)
+    // }).then(response => {
+    //   console.log("Response", response)
+    //   const { status } = response;
+    //   console.log("Status", status)
+    // }).catch(error => console.log(error))
+
+
+
+    // console.log(auth.token, match.params.hotelId);
+    // let res = await getSessionId(auth.token, match.params.hotelId);
+    // // console.log("Get sessionId response", res.data.sessionId);
+    // const stripe = await loadStripe(process.env.REACT_APP_STRIPE_KEY);
+    // stripe
+    //   .redirectToCheckout({
+    //     sessionId: res.data.sessionId,
+    //   })
+    //   .then((result) => console.log(result));
+
+    setLoading(false);
   };
 
   return (
@@ -85,19 +121,52 @@ const ViewHotel = ({ match, history }) => {
             </p>
             <i>Posted by {hotel.postedBy && hotel.postedBy.name}</i>
             <br />
-            <button
-              onClick={handleClick}
-              className="btn btn-block btn-lg btn-primary mt-3"
-              disabled={loading || alreadyBooked}
-            >
-              {loading
-                ? "Loading..."
-                :alreadyBooked
-                ?"Alredy Booked"
-                : auth && auth.token
-                ? "Book Now"
-                : "Login to Book"}
-            </button>
+
+            {auth && auth.token && !loading && !alreadyBooked && (
+              <>
+                <StripeCheckout
+                  stripeKey={process.env.REACT_APP_STRIPE_KEY}
+                  token={handleClickPayment}
+                  name="Book Hotel"
+                  amount={hotel.price * 100}
+                  billingAddress
+
+                >
+                  <button
+                    className="btn btn-block btn-lg btn-primary mt-3"
+                    disabled={loading || alreadyBooked}
+                    onClick={handleClick}
+                  >
+                    {loading
+                      ? "Loading..."
+                      : alreadyBooked
+                        ? "Already Booked"
+                        : auth && auth.token
+                          ? `Book Now in ${hotel.price} $`
+                          : "Login to Book"}
+                  </button>
+
+                </StripeCheckout>
+              </>
+            )}
+            {
+              (loading || alreadyBooked || !auth) && (
+                <>
+                  <button
+                    onClick={handleClick}
+                    className="btn btn-block btn-lg btn-primary mt-3"
+                    disabled={loading || alreadyBooked}
+                  >
+                    {loading
+                      ? "Loading..."
+                      : alreadyBooked
+                        ? "Already Booked"
+                        : "Login to Book"}
+                  </button>
+                </>
+              )
+            }
+
           </div>
         </div>
       </div>

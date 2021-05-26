@@ -1,5 +1,4 @@
 import axios from "axios";
-
 export const createConnectAccount = async (token) =>
   await axios.post(
     `${process.env.REACT_APP_API}/create-connect-account`,
@@ -74,3 +73,16 @@ export const getSessionId = async (token, hotelId) =>
       },
     }
   );
+
+
+
+  export const makePayment = async(token,data,price,hotelId) =>{
+     const res=  await axios.post(
+      `${process.env.REACT_APP_API}/payment`,{data,price,hotelId},{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      } );
+
+      return res;
+  }

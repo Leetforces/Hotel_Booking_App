@@ -96,25 +96,33 @@ export const update = async (req, res) => {
 };
 
 export const userHotelsBookings =async (req,res)=>{
+  console.log("In User Hotel Bookings");
    const all= await Order.find({orderedBy:req.user._id}).select('session').populate('hotel','-image.data').populate('orderedBy',"_id name").exec();
-
+   console.log("all user hotel bookings", all);
    return res.json(all);
 } 
 
 export const isAlreadyBooked =async (req,res)=>{
-   const {hoteId} = req.params;
-
+  console.log("In isAlreadyBooked");
+   const {hotelId} = req.params;
+  
    //find orders of the currently logged in user
    const userOrders= await Order.find({orderedBy: req.user._id}).select("hotel").exec();
+
+   console.log("USER ORDERS==>",userOrders);
 
    //check if hotelid is found in userOrders array
    let ids= [];
    for( let i=0;i<userOrders.length;i++){
       ids.push(userOrders[i].hotel.toString());
    }
-   res.json({
-     ok:ids.includes(hoteId),
-   })
+
+   console.log("IDS===>",ids);
+   console.log("hotelId",hotelId);
+
+   return res.json({
+     ok:ids.includes(hotelId),
+   });
 } 
 export const searchListings =async (req,res)=>{
    const {location,bed,date}= req.body;

@@ -31,6 +31,6 @@ router.put(
 
 //orders
 router.get("/user-hotel-bookings",requireSignin,userHotelsBookings);
-router.get("/is-already-booked",requireSignin,isAlreadyBooked)
+router.get("/is-already-booked/:hotelId",requireSignin,isAlreadyBooked)
 router.post("/search-listings",searchListings)
 module.exports = router;

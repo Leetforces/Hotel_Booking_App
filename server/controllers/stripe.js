@@ -3,9 +3,9 @@ import Stripe from "stripe";
 import queryString from "query-string";
 import Hotel from "../models/hotel";
 import Order from '../models/order'
-import user from "../models/user";
 
 const stripe = Stripe(process.env.STRIPE_SECRET);
+const { v4: uuidv4 } = require('uuid');
 
 export const createConnectAccount = async (req, res) => {
   //Find user from db
@@ -92,19 +92,28 @@ export const getAccountStatus = async (req, res) => {
   res.json(upadatedUser);
 };
 
+
 export const getAccountBalance = async (req, res) => {
   const user = await User.findById(req.user._id).exec();
+  let balance = 0;
 
-  try {
-    const balance = await stripe.balance.retrieve({
-      stripeAccount: user.stripe_account_id,
-    });
-    console.log("Balance=======>", balance);
-    return res.json(balance);
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
+  const allBookedUserHotels= await Order.find({postedBy:req.user._id});
+  
+  for( let i=0;i<allBookedUserHotels.length;i++){
+    console.log(balance);
+    balance+= parseInt(allBookedUserHotels[i].session.amount_total);
+ }
+  return res.json({balance:balance});
+  // try {
+  //   const balance = await stripe.balance.retrieve({
+  //     stripeAccount: user.stripe_account_id,
+  //   });
+  //   console.log("Balance=======>", balance);
+  //   return res.json(balance);
+  // } catch (err) {
+  //   console.log(err);
+  //   return err;
+  // }
 };
 
 export const payoutSetting = async (req, res) => {
@@ -164,19 +173,19 @@ export const stripeSessionId = async (req, res) => {
   });
 };
 
-export const stripeSuccess = async(req,res) => {
-  try{
-    const {hotelId} = req.body
+export const stripeSuccess = async (req, res) => {
+  try {
+    const { hotelId } = req.body
 
     const user = await user.findById(req.user._id).exec()
 
-    if(!user.stripeSession) return;
+    if (!user.stripeSession) return;
     const session = await stripe.checkout.sessions.retrieve(user.stripeSession.id);
 
-    if(session.payment_status === 'paid') {
-      const orderExist =await Order.findOne({"session.id": session.id }).exec();
-      if(orderExist) {
-        res.json({ success: true});
+    if (session.payment_status === 'paid') {
+      const orderExist = await Order.findOne({ "session.id": session.id }).exec();
+      if (orderExist) {
+        res.json({ success: true });
       } else {
         let newOrder = await new Order({
           hotel: hotelId,
@@ -185,13 +194,127 @@ export const stripeSuccess = async(req,res) => {
         }).save();
         //
         await User.findByIdAndUpdate(user._id, {
-          $set: {stripeSession: {}},
+          $set: { stripeSession: {} },
         });
 
-        res.json({ success: true});
+        res.json({ success: true });
       }
     }
   } catch (err) {
-    console.log("STRIPE SUCCESS ERR",err);
+    console.log("STRIPE SUCCESS ERR", err);
   }
+};
+
+
+
+export const makePayment = async (req, res) => {
+
+  const { data, price, hotelId } = req.body;
+  const item = await Hotel.findById(hotelId).exec(); 
+  const postedBy= item.postedBy;
+  console.log("price===>", price);
+  console.log("data===>", data);
+  console.log("hotelId==>", hotelId);
+  /*
+    price===> undefined
+data===> {
+id: 'tok_1IvOZ7SCDAodenDBAZ0QxoJE',
+object: 'token',
+card: {
+  id: 'card_1IvOZ7SCDAodenDBlzFawNJT',
+  object: 'card',
+  address_city: 'kolkata',
+  address_country: 'India',
+  address_line1: 'kolkata,india',
+  address_line1_check: 'unchecked',
+  address_line2: null,
+  address_state: '28',
+  address_zip: '700032',
+  address_zip_check: 'unchecked',
+  brand: 'Visa',
+  country: 'US',
+  cvc_check: 'unchecked',
+  dynamic_last4: null,
+  exp_month: 12,
+  exp_year: 2045,
+  funding: 'credit',
+  last4: '4242',
+  name: 'Manish Kumar',
+  tokenization_method: null
+},
+client_ip: '49.37.19.66',
+created: 1622042557,
+email: 'manishraj880980@gmail.com',
+livemode: false,
+type: 'card',
+used: false
+}
+hotelId==> 60a754ed0797e130442d6ab8
+  */
+  const session = {
+    "id": data.id,
+    "object": "checkout.session",
+    "allow_promotion_codes": null,
+    "amount_subtotal": price,
+    "amount_total": price,
+    "billing_address_collection": data.address_city,
+    "cancel_url": "http://localhost:3000/stripe/cancel",
+    "client_reference_id": null,
+    "currency": "usd",
+    "customer": data.card.id,
+    "customer_details": {
+      "email": data.email,
+      "tax_exempt": "none",
+      "tax_ids": []
+    },
+    "customer_email": data.email,
+    "livemode": false,
+    "locale": null,
+    "mode": "payment",
+    "payment_intent": data.id,
+    "payment_method_types": [
+      "card"
+    ],
+    "payment_status": "paid",
+    "setup_intent": null,
+    "shipping": null,
+    "shipping_address_collection": null,
+    "submit_type": null,
+    "success_url": `http://localhost:3000/stripe/success/${hotelId}`,
+    "total_details": {
+      "amount_discount": 0,
+      "amount_tax": 0,
+    },
+
+
+  }
+
+  let newOrder = await new Order({
+    hotel: hotelId,
+    session,  
+    postedBy,
+    orderedBy: req.user._id,
+  }).save();
+
+  res.send("Success");
+  /*
+
+
+  {
+      hotel: {
+          type: ObjectId,
+          ref: "Hotel",
+      },
+      session: {},
+      orderedBy: {type: ObjectId, ref: "user" },
+  }
+      email
+      price
+      id of customer
+      product name
+      card name
+      card country
+   
+  */
+
 };
