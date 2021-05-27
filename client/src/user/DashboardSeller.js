@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import SmallCard from "../components/cards/SmallCard";
 
-const DashboardSeller = () => {
+const DashboardSeller = ({history}) => {
   const { auth } = useSelector((state) => ({ ...state }));
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -27,8 +27,9 @@ const DashboardSeller = () => {
     try {
       let res = await createConnectAccount(auth.token);
       console.log(res);
-      window.location.href = res.data;
+      toast.success(res.data);
       setLoading(false);
+      history.push("/Submit_Details_To_Post_Hotels");
     } catch (err) {
       console.log(err);
       toast.error("Stripe connect failed,Try again.");
@@ -88,12 +89,12 @@ const DashboardSeller = () => {
             >
               {loading ? "processing..." : "setup Payouts"}
             </button>
-            <p className="text-muted">
+            {/* <p className="text-muted">
               <small>
                 you'll be redirected to stripe to complete the on boarding
                 process.
               </small>
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

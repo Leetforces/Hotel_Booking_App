@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
 const TopNav = () => {
-  const dispatch = useDispatch();
   const { auth } = useSelector((state) => ({ ...state }));
   const history = useHistory();
-
+  
+  const dispatch = useDispatch();
   const logout = () => {
     dispatch({
       type: "LOGOUT",

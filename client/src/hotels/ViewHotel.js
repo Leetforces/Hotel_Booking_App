@@ -6,6 +6,7 @@ import { getSessionId, makePayment } from "../actions/stripe";
 import { loadStripe } from "@stripe/stripe-js";
 
 import StripeCheckout from 'react-stripe-checkout';
+import { toast } from "react-toastify";
 
 const ViewHotel = ({ match, history }) => {
   const [hotel, setHotel] = useState({});
@@ -54,26 +55,15 @@ const ViewHotel = ({ match, history }) => {
   }
   const handleClickPayment = async (data) => {
     setLoading(true);
-
-
-    const token = auth.token;
-    const res = await makePayment(token, data, hotel.price, match.params.hotelId);
-
-
-    // const headers = {
-    //   "Content-Type": "application/json"
-    // }
-
-
-    // return fetch("http://localhost:8282/payment", {
-    //   method: "POST",
-    //   headers,
-    //   body: JSON.stringify(body)
-    // }).then(response => {
-    //   console.log("Response", response)
-    //   const { status } = response;
-    //   console.log("Status", status)
-    // }).catch(error => console.log(error))
+    try {
+      const token = auth.token;
+      const res = await makePayment(token, data, hotel.price, match.params.hotelId);
+      console.log("result after booking", res);
+      toast.success(res.data);
+      history.push("/dashboard");
+    } catch (err) {
+      toast.error(err);
+    }
 
 
 
@@ -104,7 +94,20 @@ const ViewHotel = ({ match, history }) => {
           <div className="col-md-6">
             <br />
             <b>{hotel.content}</b>
-            <p className="alert alert-info mt-3">${hotel.price}</p>
+
+            <div className="container ">
+              <div className="row ">
+                <div className="col-6">
+                  <p className="alert alert-info mt-3"> Price: &nbsp; ${hotel.price} </p>
+
+                </div>
+                <div className="col-6">
+                  <p className="alert alert-info mt-3"> Location: &nbsp; {hotel.location}</p>
+
+                </div>
+              </div>
+            </div>
+
             <p className="card-text">
               <span className="float-right text-primary">
                 for {diffDays(hotel.from, hotel.to)}{" "}

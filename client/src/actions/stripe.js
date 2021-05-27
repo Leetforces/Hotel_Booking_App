@@ -86,3 +86,13 @@ export const getSessionId = async (token, hotelId) =>
 
       return res;
   }
+  export const activateAccount = async(token,holderName,accountNo,ifsc,password) =>{
+     const res=  await axios.post(
+      `${process.env.REACT_APP_API}/activate-account`,{holderName,accountNo,ifsc,password},{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      } );
+
+      return res;
+  }

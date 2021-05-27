@@ -57,6 +57,10 @@ export default function Reset({ history }) {
 
     }
     return (
+        <>
+         <div className="container-fluid bg-secondary p-5 text-center">
+                <h1>Reset Password</h1>
+            </div>
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <div className={classes.paper}>
@@ -96,6 +100,7 @@ export default function Reset({ history }) {
             </div>
 
         </Container>
+        </>
     );
 }
 

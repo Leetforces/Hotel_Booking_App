@@ -3,6 +3,8 @@ import Stripe from "stripe";
 import queryString from "query-string";
 import Hotel from "../models/hotel";
 import Order from '../models/order'
+import Account from '../models/account'
+import { response } from "express";
 
 const stripe = Stripe(process.env.STRIPE_SECRET);
 const { v4: uuidv4 } = require('uuid');
@@ -12,9 +14,8 @@ export const createConnectAccount = async (req, res) => {
   console.log("Something Something");
   const user = await User.findById(req.user._id).exec();
 
-  //if user don't have stripe_account_id
-  // !user.stripe_account_id
-  if (true) {
+
+  if (!user.stripe_account_id) {
     const account = await stripe.accounts.create({
       type: "express",
       country: "US",
@@ -31,23 +32,25 @@ export const createConnectAccount = async (req, res) => {
     user.save();
   }
 
-  console.log("USER ========>", user);
-  //create login link based on account id (for frontend to complete onboarding)
-  let accountLink = await stripe.accountLinks.create({
-    account: user.stripe_account_id,
-    refresh_url: process.env.STRIPE_REDIRECT_URL,
-    return_url: process.env.STRIPE_REDIRECT_URL,
-    type: "account_onboarding",
-  });
+  // console.log("USER ========>", user);
+  // //create login link based on account id (for frontend to complete onboarding)
+  // let accountLink = await stripe.accountLinks.create({
+  //   account: user.stripe_account_id,
+  //   refresh_url: process.env.STRIPE_REDIRECT_URL,
+  //   return_url: process.env.STRIPE_REDIRECT_URL,
+  //   type: "account_onboarding",
+  // });
 
-  // prefill any info such as email
-  accountLink = Object.assign(accountLink, {
-    "stripe_user[email]": user.email || undefined,
-  });
-  console.log("Account Link", accountLink);
-  let link = `${accountLink.url}?${queryString.stringify(accountLink)}`;
-  console.log("Link send to Frontend=====>", link);
-  return res.send(link);
+  // // prefill any info such as email
+  // accountLink = Object.assign(accountLink, {
+  //   "stripe_user[email]": user.email || undefined,
+  // });
+  // console.log("Account Link", accountLink);
+  // let link = `${accountLink.url}?${queryString.stringify(accountLink)}`;
+  // console.log("Link send to Frontend=====>", link);
+  // return res.send(link);
+
+  return res.send("Stripe Account_id created.");
 };
 
 const updateDelayDays = async (accountId) => {
@@ -97,13 +100,13 @@ export const getAccountBalance = async (req, res) => {
   const user = await User.findById(req.user._id).exec();
   let balance = 0;
 
-  const allBookedUserHotels= await Order.find({postedBy:req.user._id});
-  
-  for( let i=0;i<allBookedUserHotels.length;i++){
+  const allBookedUserHotels = await Order.find({ postedBy: req.user._id });
+
+  for (let i = 0; i < allBookedUserHotels.length; i++) {
     console.log(balance);
-    balance+= parseInt(allBookedUserHotels[i].session.amount_total);
- }
-  return res.json({balance:balance});
+    balance += parseInt(allBookedUserHotels[i].session.amount_total);
+  }
+  return res.json({ balance: balance });
   // try {
   //   const balance = await stripe.balance.retrieve({
   //     stripeAccount: user.stripe_account_id,
@@ -131,6 +134,7 @@ export const payoutSetting = async (req, res) => {
     console.log("Stripe Payout Setting Error====>", err);
   }
 };
+
 
 export const stripeSessionId = async (req, res) => {
   // console.log("you hit stripe session id", req.body.hotelId);
@@ -210,8 +214,8 @@ export const stripeSuccess = async (req, res) => {
 export const makePayment = async (req, res) => {
 
   const { data, price, hotelId } = req.body;
-  const item = await Hotel.findById(hotelId).exec(); 
-  const postedBy= item.postedBy;
+  const item = await Hotel.findById(hotelId).exec();
+  const postedBy = item.postedBy;
   console.log("price===>", price);
   console.log("data===>", data);
   console.log("hotelId==>", hotelId);
@@ -291,12 +295,12 @@ hotelId==> 60a754ed0797e130442d6ab8
 
   let newOrder = await new Order({
     hotel: hotelId,
-    session,  
+    session,
     postedBy,
     orderedBy: req.user._id,
   }).save();
 
-  res.send("Success");
+  res.send("Booking successful.");
   /*
 
 
@@ -318,3 +322,48 @@ hotelId==> 60a754ed0797e130442d6ab8
   */
 
 };
+
+export const activateAccount = async (req, res) => {
+
+  try {
+
+    const { holderName, accountNo, ifsc, password } = req.body;
+    let user = await User.findById(req.user._id).exec();
+
+    // comapre password
+    user.comparePassword(password, (err, match) => {
+      // if password doesn't match or returns an error
+      if (!match || err) return res.status(400).send("Wrong Password");
+      
+      const userAccount = new Account({
+        holderName,
+        ifsc,
+        accountNo,
+        userId:user._id,
+      });
+       
+      userAccount.save();
+
+      const stripe_seller={
+         "id": user.stripe_account_id,
+         "charges_enabled":true,
+         "email":user.email,
+         "default_currency":"usd",
+         "payouts_enabled":true,
+      }
+
+      user.stripe_seller=stripe_seller;
+      user.save();
+
+      return res.send("Account Activated Successfully:)");
+
+    });
+
+      
+  } catch (err) {
+    // if error, send the error message
+    console.log("Login ERROR:", err);
+    res.status(400).send("Activate Account Failed");
+  }
+
+}

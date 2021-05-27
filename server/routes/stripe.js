@@ -8,6 +8,7 @@ import {
   stripeSessionId,
   stripeSuccess,
   makePayment,
+  activateAccount,
 } from "../controllers/stripe";
 
 const router = express.Router();
@@ -19,4 +20,6 @@ router.post("/payout-setting", requireSignin, payoutSetting);
 router.post("/stripe-session-id", requireSignin, stripeSessionId);
 router.post("/stripe-success",requireSignin,stripeSuccess);
 router.post("/payment",requireSignin,makePayment);
+router.post("/payment",requireSignin,makePayment);
+router.post("/activate-account",requireSignin,activateAccount);
 module.exports = router;

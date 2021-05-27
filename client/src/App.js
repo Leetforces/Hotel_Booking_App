@@ -2,6 +2,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import TopNav from "./components/TopNav";
 import PrivateRoute from "./components/PrivateRoute";
+import PrivateRoute1 from "./components/PrivateRoute1";
 //components
 import Home from "./booking/Home";
 import Login from "./auth/Login";
@@ -17,6 +18,7 @@ import ViewHotel from "./hotels/ViewHotel";
 import StripeSuccess from './stripe/StripeSuccess';
 import StripeCancel from './stripe/StripeCancel';
 import SearchResult from './hotels/SearchResult';
+import SubmitDetailsToPostHotels from "./components/forms/SubmitDetailsToPostHotels";
 function App() {
   return (
     <BrowserRouter>
@@ -56,7 +58,12 @@ function App() {
           path="/stripe/cancel"
           component={StripeCancel}
         />
-          <Route exact path="/search-result" component={SearchResult} />
+        <PrivateRoute1
+          exact
+          path="/Submit_Details_To_Post_Hotels"
+          component={SubmitDetailsToPostHotels}
+        />
+        <Route exact path="/search-result" component={SearchResult} />
       </Switch>
     </BrowserRouter>
   );
