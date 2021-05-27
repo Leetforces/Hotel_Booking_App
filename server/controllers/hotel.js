@@ -141,3 +141,26 @@ export const searchListings =async (req,res)=>{
 
    res.json(result);
 } 
+
+
+export const checkOrderPresent =async (req,res)=>{
+  console.log("In CheckOrderPresent");
+   const {hotelId} = req.params;
+  
+   //find orders of the currently logged in user
+   const hotelOrders= await Order.find({hotel: hotelId}).exec();
+
+   console.log("Hotel ORDERS==>",hotelOrders);
+   
+   if(hotelOrders.length){
+     return res.json({
+       ok:true,
+     })
+   }
+   else{
+    return res.json({
+      ok:false,
+    })
+   }
+ 
+}

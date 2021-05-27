@@ -77,3 +77,11 @@ export const searchListings = async(query)=>{
   return res; 
 }
 
+export const checkOrderPresentForThisHotel=  async(token,hotelId)=>{
+  const res= await axios.get(`${process.env.REACT_APP_API}/check-order-present-for-hotel/${hotelId}`,{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return res;
+}

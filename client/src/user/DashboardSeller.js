@@ -5,12 +5,12 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { HomeOutlined } from "@ant-design/icons";
 import { createConnectAccount } from "../actions/stripe";
-import { sellerHotels, deleteHotel } from "../actions/hotel";
+import { sellerHotels, deleteHotel,checkOrderPresentForThisHotel } from "../actions/hotel";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import SmallCard from "../components/cards/SmallCard";
 
-const DashboardSeller = ({history}) => {
+const DashboardSeller = ({ history }) => {
   const { auth } = useSelector((state) => ({ ...state }));
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -38,11 +38,25 @@ const DashboardSeller = ({history}) => {
   };
 
   const handleHotelDelete = async (hotelId) => {
-    if (!window.confirm("Are you sure?")) return;
-    deleteHotel(auth.token, hotelId).then((res) => {
-      toast.success("Hotel Deleted");
-      loadSellersHotels();
-    });
+
+    /*
+    check this hotel is present active  order (that's means company didn't get all money from this hotel. so, you can't delete) 
+    */
+
+    const res = await checkOrderPresentForThisHotel(auth.token,hotelId);
+    console.log("response=>",res);
+    if ((res.data.ok)) {
+      toast.error("You Can't delete right now. you didn't received your full payments of this hotel");
+      return;
+    }
+    else {
+      if (!window.confirm("Are you sure?")) return;
+
+      deleteHotel(auth.token, hotelId).then((res) => {
+        toast.success("Hotel Deleted");
+        loadSellersHotels();
+      });
+    }
   };
 
   const connected = () => (
@@ -110,9 +124,9 @@ const DashboardSeller = ({history}) => {
         <DashboardNav />
       </div>
       {auth &&
-      auth.user &&
-      auth.user.stripe_seller &&
-      auth.user.stripe_seller.charges_enabled
+        auth.user &&
+        auth.user.stripe_seller &&
+        auth.user.stripe_seller.charges_enabled
         ? connected()
         : notConnected()}
     </>
